@@ -20,8 +20,35 @@ class Board(object):
         '''Check if all the columns are full.'''
         return all(len(x) == self.rows for x in self.columns)
 
-    def check_winner(self):
+    def check_winner(self, col):
         '''Checks the board for a 4 in a row connection.'''
+        winner = None
+
+        # Check for 4 in a row
+        win_count = 0
+        row = 0
+        col = self.columns[col]
+
+        # Condition 1 - Vertical
+        if len(col) >= 4:
+            try:
+                while win_count < 4:
+                    if col[row+1] == col[row]:
+                        win_count += 1
+                        winner = col[row]
+                    else:
+                        win_count = 1
+                        winner = None
+                    row += 1
+            except IndexError:
+                winner = None
+                win_count = 0
+
+        # Condition 2 - Horizontal
+        return winner
+        # Condition 2 - Horizontal
+        # Condition 3 - Z Diagonal
+        # Condition 4 - S Diagonal
 
 class Connect4(object):
     def __init__(self, columns=None, rows=None):
@@ -34,9 +61,9 @@ class Connect4(object):
         current_player = self.players[self.current_player]
         print "Player '{0}', your turn...".format(current_player)
         col = raw_input("Which column deserves an '{0}'??  ".format(current_player))
-
+        self.current_col = int(col)-1
         try:
-            target_col = self.board.columns[int(col)-1]
+            target_col = self.board.columns[self.current_col]
         except ValueError:
             print "Oops. Looks like that's not a column number.  Try again."
         except IndexError:
@@ -91,11 +118,12 @@ class Connect4(object):
     def check_winner(self):
         '''Checks for a winner.'''
         # Check for a winner
-        winner = self.board.check_winner()
+        winner = self.board.check_winner(self.current_col)
 
         # Check for a draw
         if winner is None and self.board.is_full():
             winner = "draw"
+
         return winner
 
     def run(self):
